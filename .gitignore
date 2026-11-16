@@ -1,0 +1,20 @@
+# unemu fork (upstream r638 has no .gitignore)
+/result
+/result-*
+# Output of a local `make` in upstream's build directories
+/*/Build/
+/Serial_Server/build/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*
+
+# Personal git hooks (core.hooksPath points at .beads/hooks); not part of the tree
+/.beads/hooks/pre-commit
+/.beads/hooks/pre-commit.backup
+
+# bd settings name per-clone paths and push URLs; not part of the tree
+/.beads/config.yaml

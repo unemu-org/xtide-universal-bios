@@ -1,0 +1,54 @@
+xtide-universal-bios-r638-src
+
+Corresponding source for the XTIDE Universal BIOS option ROMs that the
+unemupc98 emulator project uses. The project downloads two r638 builds
+unchanged from the XTIDE Universal BIOS binary download centre,
+https://www.xtideuniversalbios.org/binaries/r638/:
+
+  ide_at.bin   AT build, 6,646 bytes
+    SHA-256 6d5007bca3be0bffeb210969a299b67199368b4845f554b5a00715e2718dfea8
+  ide_xtp.bin  XT+ build, 6,629 bytes
+    SHA-256 338f70795a7c881a839ce25365678db0f2a356f2f255b7493a07f58f3ac65ec4
+
+and derives the two option ROMs it ships from them:
+
+  ide_at-r638-8k.bin           8,192 bytes (unemupc98, 2026-11-10)
+    SHA-256 6409de912eab620ea144b79e723bed478814047dc2766fc19fd6e2e3690662d0
+  ide_xtp-r638-ata1f0-8k.bin   8,192 bytes (unemupc98, 2026-11-11)
+    SHA-256 54975501e6887c836b8d57e7aad78421e745a9b71e250f94d5d1f9631eab1513
+
+Each download is padded to its declared 8 KiB with zero bytes. The XT+ image
+also gets configuration (ROMVARS) bytes, as the XTIDE configurator would
+write them: boot drive 00h at offset 0049h, and F0 01 F0 03 00 00 at
+004Eh-0053h (command block 1F0h, control block 3F0h, 16-bit ATA, polling).
+Finally the last byte, at offset 8191, is set so that the byte sum of all
+8,192 bytes is 0 modulo 256, the option-ROM checksum. No code is changed.
+
+Contents
+
+  trunk/  svn export -r 638 of
+          https://www.xtideuniversalbios.org/svn/xtideuniversalbios/trunk
+          (repository UUID 143130fb-dee8-9d2b-0d25-209ee59ef9c5),
+          unmodified. r638 was committed on 2026-06-09 09:36:36 UTC.
+  NOTICE  this file.
+
+Licence
+
+  GPL-2.0-only. The download centre's Readme.txt says the project is run
+  under GNU GPL version 2, and trunk/license.txt is version 2. Source files
+  with a licence header grant version 2 or, at your option, any later
+  version, but other files have no header and fall under license.txt alone,
+  so the archive and the ROMs built from it are distributed under version 2
+  only. Copyright (C) 2009-2010 Tomi Tilli, 2011-2026 XTIDE Universal BIOS
+  Team; see trunk/Copyrights.txt, trunk/license.txt and the file headers.
+
+Rebuild
+
+  With NASM and make (measured with NASM 3.01 and GNU make 4.4.1), from
+  trunk/XTIDE_Universal_BIOS:
+
+    make at xtplus AS="nasm -D__DATE__='\"2026-06-09\"'"
+
+  This writes Build/ide_at.bin and Build/ide_xtp.bin. The downloaded builds
+  embed their build date through NASM's __DATE__; defining it as the r638
+  commit date reproduces both downloads byte for byte.
