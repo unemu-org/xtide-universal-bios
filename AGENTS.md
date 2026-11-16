@@ -54,6 +54,10 @@ nix develop                   # nasm, make, GNU tar
 nix develop --command release/assets.sh TAG OUTDIR   # a release's ROM, source archive, SHA256SUMS
 ```
 
+CI (`.github/workflows/ci.yml`) runs `nix flake check` on x86_64-linux for
+pushes to main, release tags and pull requests, prints the SHA-256s and keeps
+the images as an artifact; `release-assets.yml` attaches the release assets.
+
 The emulator-side qualification (the open AT profile's IDE goldens) runs in
 unemupc98; its supervisor runs it when the ROM bytes change.
 

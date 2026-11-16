@@ -82,6 +82,10 @@ date reproduces the r638 downloads byte for byte.
 | `ide-at` `ide_at.bin` | 6,646 | `6d5007bca3be0bffeb210969a299b67199368b4845f554b5a00715e2718dfea8` | r638 download `binaries/r638/ide_at.bin` |
 | `xtp-ata1f0` `ide_xtp-r638-ata1f0-8k.bin` | 8,192 | `54975501e6887c836b8d57e7aad78421e745a9b71e250f94d5d1f9631eab1513` | unemupc98 `xub-r638-xtp-ata1f0` |
 
+GitHub Actions (`.github/workflows/ci.yml`) runs `nix flake check` on
+x86_64-linux for pushes to main, release tags and pull requests, prints the
+SHA-256s and keeps the three images as a workflow artifact.
+
 ## Configuration of the unemu ROM
 
 Upstream's image is shorter than the 8 KiB its header declares (`55 AA 10`) and

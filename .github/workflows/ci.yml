@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 unemu contributors.
+#
+# Build the images on x86_64-linux and check them against their pins:
+# `nix flake check` rebuilds ide-xtp and ide-at (upstream's r638 downloads,
+# byte for byte) and xtp-ata1f0 (the configured 8 KiB ROM unemupc98 pins).
+# The job prints the SHA-256s and keeps the images as a workflow artifact.
+# Release assets are attached by release-assets.yml.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['r*-unemu.*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    name: check (x86_64-linux)
+    runs-on: ubuntu-latest
+    steps:
+      # The build needs no credentials; keep the job token out of .git/config.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: nix flake check
+        run: nix flake check -L --no-update-lock-file
+
+      # The hashes in the log are the x86_64-linux data point for a release.
+      - name: Collect the images and their SHA-256s
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          mkdir -p images
+          for p in xtp-ata1f0 ide-xtp ide-at; do
+            out=$(nix build --no-link --print-out-paths --no-update-lock-file ".#$p")
+            for f in "$out"/*.bin; do
+              cp "$f" images/
+              printf '%s  %s\n' "$(cat "$f.sha256")" "$(basename "$f")"
+            done
+          done
+          chmod 0644 images/*.bin
+          (cd images && sha256sum -- *.bin > SHA256SUMS)
+
+      - name: Keep the images
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: xtide-universal-bios-images
+          path: images/
+          if-no-files-found: error
